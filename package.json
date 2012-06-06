@@ -1,0 +1,12 @@
+{
+    "name" : "text2image",
+    "version" : "0.0.1",
+    "description" : "Convert text to image file using canvas",
+    "bin": { "text2gif": "./bin/text2gif" }
+    "dependencies" : {
+        "canvas" : "~0.12.0",
+        "easyimage" : "0.1.2",
+        "optimist" : "0.3.4",
+        "temp" : "0.4.0"
+    }
+}

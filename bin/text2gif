@@ -1,0 +1,53 @@
+#!/usr/bin/env node
+
+var Canvas = require('canvas')
+  , easyimg = require('easyimage')
+  , canvas_mesure = new Canvas(1,1)
+  , ctx_mesure = canvas_mesure.getContext('2d')
+  , fs = require('fs')
+  , temp = require('temp')
+  , argv = require('optimist').argv;
+
+var pngFileName = temp.path({suffix: '.png'});
+out = fs.createWriteStream(pngFileName)
+
+if (typeof(argv.backgroundColor) === 'undefined') {
+  backgroundColor = '#FFF';
+} else {
+  backgroundColor = argv.backgroundColor;
+}
+if (typeof(argv.textColor) === 'undefined') {
+  textColor = '#000';
+} else {
+  textColor = argv.textColor;
+}
+  
+var text = argv.text;
+var font = argv.font; //'bold 15px "Adelle Basic"';
+ctx_mesure.font = font;
+var text_size = ctx_mesure.measureText(text);  
+
+canvas = new Canvas(text_size.width,text_size.emHeightAscent+text_size.emHeightDescent)
+ctx = canvas.getContext('2d')
+stream = canvas.createPNGStream();
+
+ctx.fillStyle = backgroundColor;
+ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle = textColor;//'#475158';
+ctx.font = font;
+ctx.fillText(text, 0, text_size.emHeightAscent);
+
+stream.on('data', function(chunk){
+  out.write(chunk);
+});
+
+stream.on('end', function(){
+  gifFileName = temp.path({suffix: '.gif'});
+  easyimg.convert({src:pngFileName, dst:gifFileName}, function(err, stdout, stderr) {
+      if (err) throw err;
+      var f = fs.createReadStream(gifFileName);
+      f.on('data', function(data) {
+        process.stdout.write(data);
+      });
+  });
+});
